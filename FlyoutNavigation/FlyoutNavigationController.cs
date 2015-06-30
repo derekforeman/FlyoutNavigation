@@ -230,7 +230,13 @@ namespace FlyoutNavigation
 				EnsureInvokedOnMainThread(delegate { NavigationItemSelected(value); });
 			}
 		}
-
+        public bool UseLegacySwipe
+        {
+            get;
+            set {
+                value = false;
+            }
+        }
 		public bool DisableRotation { get; set; }
 
 		public override bool ShouldAutomaticallyForwardRotationMethods
@@ -285,14 +291,21 @@ namespace FlyoutNavigation
 			AlwaysShowLandscapeMenu = true;
 			NavigationOpenedByLandscapeRotation = false;
 
-			View.AddGestureRecognizer (openGesture = new UIScreenEdgePanGestureRecognizer(() => DragContentView (openGesture)){Edges = Position == FlyOutNavigationPosition.Left ? UIRectEdge.Left : UIRectEdge.Right});
-			View.AddGestureRecognizer (closeGesture = new OpenMenuGestureRecognizer (DragContentView, shouldReceiveTouch));
+            if(UseLegacySwipe){
+                View.AddGestureRecognizer (legacyGesture = new OpenMenuGestureRecognizer (DragContentView, shouldReceiveTouch));
+            }
+            else{
+                View.AddGestureRecognizer (openGesture = new UIScreenEdgePanGestureRecognizer(() => DragContentView (openGesture)){Edges = Position == FlyOutNavigationPosition.Left ? UIRectEdge.Left : UIRectEdge.Right});
+                View.AddGestureRecognizer (closeGesture = new OpenMenuGestureRecognizer (DragContentView, shouldReceiveTouch));
+            }
 
 		}
 		void CloseButtonTapped (object sender, EventArgs e)
 		{
 			HideMenu();
 		}
+
+        OpenMenuGestureRecognizer legacyGesture;
 		OpenMenuGestureRecognizer closeGesture;
 		UIScreenEdgePanGestureRecognizer openGesture;
 		public event UITouchEventArgs ShouldReceiveTouch;
